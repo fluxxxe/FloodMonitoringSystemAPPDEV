@@ -16,9 +16,10 @@ import "../styles/pages/Monitoring.css";
 export function Monitoring() {
   const { waters, loading, error } = useWaters();
   const [selectedId, setSelectedId] = useState("");
+  const [modalWaterId, setModalWaterId] = useState("");
   const selectedWater = useMemo(
-    () => waters.find((location) => location.id === selectedId || String(location.id) === selectedId) ?? null,
-    [waters, selectedId],
+    () => waters.find((location) => location.id === modalWaterId || String(location.id) === modalWaterId) ?? null,
+    [waters, modalWaterId],
   );
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export function Monitoring() {
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSelectedId("");
+        setModalWaterId("");
       }
     };
 
@@ -77,26 +78,60 @@ export function Monitoring() {
     <section className="app__section">
       <h2 className="app__section-title">Monitoring View</h2>
       <p className="app__page-text">
-        Select a monitored water location to open its full-screen IoT detail panel.
+        Select a monitored water location to view details inline or open the 24h history chart.
       </p>
 
       <ul className="app__water-grid app__water-grid--monitoring">
-        {waters.map((location) => (
-          <li key={location.id}>
-            <button
-              className="app__monitor-card-button"
-              onClick={() => setSelectedId(location.id)}
-              type="button"
-            >
-              <WaterLevelCard {...location} />
-              <div className="app__monitor-card-meta">
-                <span>{location.sensorId}</span>
-                <span>{location.trend} trend</span>
+        {waters.map((location) => {
+          const isActive = selectedId === String(location.id);
+          return (
+            <li key={location.id}>
+              <div
+                className={`app__monitor-card-wrap ${isActive ? "app__monitor-card-wrap--active" : ""}`}
+                onClick={() => setSelectedId((current) => (current === String(location.id) ? "" : String(location.id)))}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setSelectedId((current) => (current === String(location.id) ? "" : String(location.id)));
+                  }
+                }}
+              >
+                <WaterLevelCard
+                  {...location}
+                  expandedContent={
+                    isActive ? (
+                      <div className="app__monitor-card-details" onClick={(e) => e.stopPropagation()}>
+                        <p><strong>Type:</strong> {location.locationType}</p>
+                        <p><strong>Trend:</strong> {location.trend}</p>
+                        <p><strong>Barangay:</strong> {location.barangay}</p>
+                        <p><strong>Municipality:</strong> {location.municipality}</p>
+                        <p><strong>Sensor ID:</strong> {location.sensorId}</p>
+                        <p><strong>Last Updated:</strong> {location.lastUpdated}</p>
+                        {location.notes && <p className="app__monitor-card-notes"><strong>Notes:</strong> {location.notes}</p>}
+                        <button
+                          type="button"
+                          className="app__page-link app__page-link--button"
+                          style={{ marginTop: "1rem", width: "100%", padding: "0.55rem 1rem", border: "0" }}
+                          onClick={() => setModalWaterId(String(location.id))}
+                        >
+                          📈 View 24h History Graph
+                        </button>
+                      </div>
+                    ) : undefined
+                  }
+                />
+                <div className="app__monitor-card-meta">
+                  <span>{location.sensorId}</span>
+                  <span>{location.trend} trend</span>
+                </div>
+                <p className="app__monitor-card-hint">
+                  {isActive ? "Click to collapse details" : "Click to view details"}
+                </p>
               </div>
-              <p className="app__monitor-card-hint">Open full-screen monitoring details</p>
-            </button>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
 
       {selectedWater ? (
@@ -110,7 +145,7 @@ export function Monitoring() {
             className="app__monitor-modal-backdrop"
             type="button"
             aria-label="Close monitoring details"
-            onClick={() => setSelectedId("")}
+            onClick={() => setModalWaterId("")}
           />
           <section className="app__monitor-modal-panel">
             <header className="app__monitor-modal-header">
@@ -126,7 +161,7 @@ export function Monitoring() {
               <button
                 className="app__monitor-modal-close"
                 type="button"
-                onClick={() => setSelectedId("")}
+                onClick={() => setModalWaterId("")}
               >
                 Close
               </button>
@@ -206,9 +241,9 @@ export function Monitoring() {
                       <CartesianGrid stroke="#dbeafe" strokeDasharray="3 3" />
                       <XAxis dataKey="timeLabel" tick={{ fontSize: 12, fill: "#475569" }} />
                       <YAxis
-                        tick={{ fontSize: 12, fill: "#475569" }}
-                        unit="m"
-                        domain={[0, Math.ceil(selectedWater.maxLevel + 1)]}
+                          tick={{ fontSize: 12, fill: "#475569" }}
+                          unit="m"
+                          domain={[0, Math.ceil(selectedWater.maxLevel + 1)]}
                       />
                       <Tooltip
                         formatter={(value: number) => [`${value.toFixed(1)} m`, "Water level"]}

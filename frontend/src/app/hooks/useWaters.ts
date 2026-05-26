@@ -17,11 +17,14 @@ export function useWaters() {
       } catch (err: any) {
         setError(err.message);
       } finally {
-        setLoading(loading => false);
+        setLoading(false);
       }
     }
 
     fetchWaters();
+    const interval = setInterval(fetchWaters, 2500);
+
+    return () => clearInterval(interval);
   }, []);
 
   return { waters, loading, error };

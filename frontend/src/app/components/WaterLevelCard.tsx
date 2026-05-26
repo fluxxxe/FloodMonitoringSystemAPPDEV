@@ -1,4 +1,4 @@
-﻿// Simple Water Level Card Component
+// Simple Water Level Card Component
 // Shows water level information for one location
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -11,6 +11,7 @@ interface WaterLevelCardProps {
   currentLevel: number;
   maxLevel: number;
   status: string;
+  expandedContent?: React.ReactNode;
 }
 
 export function WaterLevelCard({
@@ -18,6 +19,7 @@ export function WaterLevelCard({
   currentLevel,
   maxLevel,
   status,
+  expandedContent,
 }: WaterLevelCardProps) {
   // Calculate percentage for progress bar
   const percentage = Math.max(0, Math.min((currentLevel / maxLevel) * 100, 100));
@@ -58,6 +60,12 @@ export function WaterLevelCard({
           <p className="water-level-card__percent">
             {percentage.toFixed(0)}% of max capacity
           </p>
+
+          {expandedContent && (
+            <div className="water-level-card__expanded-content" style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #e2e8f0" }}>
+              {expandedContent}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

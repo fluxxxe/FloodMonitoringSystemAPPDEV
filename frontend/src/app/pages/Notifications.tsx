@@ -88,9 +88,11 @@ function formatRelativeTime(value: string): string {
 }
 
 export function Notifications() {
-  const { payload, locationName } = useWeather();
+  const { status, payload, locationName } = useWeather();
   const [items, setItems] = useState<NotificationItem[]>(initialNotifications);
   const [readOverrides, setReadOverrides] = useState<Record<string, boolean>>({});
+  const [filterType, setFilterType] = useState<"All" | NotificationType>("All");
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
   const liveWeatherItems = useMemo<NotificationItem[]>(() => {
     if (!payload) return [];
@@ -119,8 +121,16 @@ export function Notifications() {
       );
   }, [items, liveWeatherItems, readOverrides]);
 
+  const filteredItems = useMemo(() => {
+    return mergedItems.filter((item) => {
+      const typeOk = filterType === "All" || item.type === filterType;
+      const unreadOk = !showUnreadOnly || !item.isRead;
+      return typeOk && unreadOk;
+    });
+  }, [mergedItems, filterType, showUnreadOnly]);
+
   const groupedItems = useMemo(() => {
-    return mergedItems.reduce<Array<{ dateLabel: string; items: NotificationItem[] }>>(
+    return filteredItems.reduce<Array<{ dateLabel: string; items: NotificationItem[] }>>(
       (groups, item) => {
         const dateLabel = formatNotificationDate(item.occurredAt);
         const existingGroup = groups.find((group) => group.dateLabel === dateLabel);
@@ -135,12 +145,14 @@ export function Notifications() {
       },
       [],
     );
-  }, [mergedItems]);
+  }, [filteredItems]);
 
-  const markAsRead = (id: string) => {
+  const unreadCount = mergedItems.filter((item) => !item.isRead).length;
+
+  const toggleRead = (id: string) => {
     setReadOverrides((previous) => ({
       ...previous,
-      [id]: true,
+      [id]: !(previous[id] ?? mergedItems.find((item) => item.id === id)?.isRead ?? false),
     }));
   };
 
@@ -156,6 +168,10 @@ export function Notifications() {
     setItems((current) => current.filter((item) => !(readOverrides[item.id] ?? item.isRead)));
   };
 
+  const clearAll = () => {
+    setItems([]);
+  };
+
   return (
     <section className="app__section app__notif-shell">
       <header className="app__notif-topbar">
@@ -169,8 +185,54 @@ export function Notifications() {
           <button type="button" className="app__notif-ghost-button" onClick={clearRead}>
             Clear read
           </button>
+          <button type="button" className="app__notif-ghost-button" onClick={clearAll}>
+            Clear all
+          </button>
         </div>
       </header>
+
+      <div className="app__notif-controls">
+        <div className="app__notif-live-status">
+          <span>Live weather feed:</span>
+          <span className={`app__notif-status-badge app__notif-status-badge--${status}`}>
+            {status === "loading" ? "Updating..." : "Synced"}
+          </span>
+        </div>
+
+        <div className="app__notif-filter-group">
+          <span className="app__notif-filter-label">Filter Type:</span>
+          <div className="app__notif-filter-chips">
+            {(["All", "Tsunami", "Flood", "Rainfall"] as const).map((value) => {
+              const isActive = value === filterType;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFilterType(value)}
+                  className={`app__notif-chip ${isActive ? "app__notif-chip--active" : ""}`}
+                >
+                  {value}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="app__notif-toggles">
+          <label className="app__notif-toggle-label">
+            <input
+              type="checkbox"
+              checked={showUnreadOnly}
+              onChange={(e) => setShowUnreadOnly(e.target.checked)}
+            />
+            <span>Unread only</span>
+          </label>
+        </div>
+
+        <div className="app__notif-unread-count">
+          Unread notifications: <strong>{unreadCount}</strong>
+        </div>
+      </div>
 
       {groupedItems.length === 0 ? (
         <p className="app__notif-empty">No notification records available.</p>
@@ -182,10 +244,18 @@ export function Notifications() {
               <ul className="app__notif-list">
                 {group.items.map((item) => (
                   <li key={item.id}>
-                    <button
-                      type="button"
+                    <div
                       className={`app__notif-row ${item.isRead ? "app__notif-row--read" : ""}`}
-                      onClick={() => markAsRead(item.id)}
+                      onClick={() => {
+                        if (!item.isRead) toggleRead(item.id);
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          if (!item.isRead) toggleRead(item.id);
+                        }
+                      }}
                     >
                       <span
                         className={`app__notif-indicator ${item.isRead ? "app__notif-indicator--hidden" : ""}`}
@@ -204,9 +274,19 @@ export function Notifications() {
                           <span>{item.type}</span>
                           <span>{formatNotificationTime(item.occurredAt)}</span>
                           <span>{formatRelativeTime(item.occurredAt)}</span>
+                          <button
+                            type="button"
+                            className="app__notif-toggle-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleRead(item.id);
+                            }}
+                          >
+                            {item.isRead ? "Mark as unread" : "Mark as read"}
+                          </button>
                         </div>
                       </div>
-                    </button>
+                    </div>
                   </li>
                 ))}
               </ul>
