@@ -186,7 +186,7 @@ def list_alerts(db: Session = Depends(get_db)):
 
 
 @app.post("/api/alerts/", status_code=201)
-def create_alert(payload: schemas.AlertCreate, db: Session = Depends(get_db)):
+def create_alert(payload: schemas.AlertCreate, db: Depends(get_db)):
     a = models.Alert(**payload.model_dump())
     db.add(a)
     db.commit()
@@ -212,7 +212,7 @@ def list_reports(db: Session = Depends(get_db)):
 
 
 @app.post("/api/reports/", status_code=201)
-def create_report(payload: schemas.IncidentReportCreate, db: Session = Depends(get_db)):
+def create_report(payload: schemas.IncidentReportCreate, db: Depends(get_db)):
     r = models.IncidentReport(**payload.model_dump())
     db.add(r)
     db.commit()
@@ -221,7 +221,7 @@ def create_report(payload: schemas.IncidentReportCreate, db: Session = Depends(g
 
 
 @app.delete("/api/reports/{item_id}/", status_code=204)
-def delete_report(item_id: int, db: Session = Depends(get_db)):
+def delete_report(item_id: int, db: Depends(get_db)):
     r = db.query(models.IncidentReport).get(item_id)
     if not r:
         raise HTTPException(404, "Report not found")
@@ -238,7 +238,7 @@ def list_products(db: Session = Depends(get_db)):
 
 
 @app.post("/api/products/", status_code=201)
-def create_product(payload: schemas.ProductCreate, db: Session = Depends(get_db)):
+def create_product(payload: schemas.ProductCreate, db: Depends(get_db)):
     p = models.Product(**payload.model_dump())
     db.add(p)
     db.commit()
@@ -247,7 +247,7 @@ def create_product(payload: schemas.ProductCreate, db: Session = Depends(get_db)
 
 
 @app.delete("/api/products/{item_id}/", status_code=204)
-def delete_product(item_id: int, db: Session = Depends(get_db)):
+def delete_product(item_id: int, db: Depends(get_db)):
     p = db.query(models.Product).get(item_id)
     if not p:
         raise HTTPException(404, "Product not found")
