@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Admin Panel – Premium Dark Theme
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.admin__header {
+  padding: 1.5rem 1.75rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid #334155;
+}
+
+.admin__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: -0.01em;
+}
+
+.admin__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* ── Tab Bar ────────────────────────────────────────────────────────────── */
+.admin__tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.admin__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin__tab:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.admin__tab--active {
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+}
+
+.admin__tab-icon {
+  font-size: 1rem;
+}
+
+/* ── Loading ────────────────────────────────────────────────────────────── */
+.admin__loading {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* ── Panel ──────────────────────────────────────────────────────────────── */
+.admin__panel {
+  border-radius: 1rem;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  overflow: hidden;
+  animation: adminFadeIn 0.3s ease;
+}
+
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.admin__panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #1e293b;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+.admin__panel-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+/* ── Form Row ───────────────────────────────────────────────────────────── */
+.admin__form-row {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #1e293b;
+  flex-wrap: wrap;
+  background: #0f172a;
+}
+
+.admin__form-row input,
+.admin__form-row select {
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  flex: 1;
+  min-width: 100px;
+  transition: border-color 0.2s;
+}
+
+.admin__form-row input:focus,
+.admin__form-row select:focus {
+  outline: none;
+  border-color: #0ea5e9;
+}
+
+.admin__form-row input::placeholder {
+  color: #475569;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.admin__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin__btn--add {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.admin__btn--add:hover {
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+  transform: translateY(-1px);
+}
+
+.admin__btn--del {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  background: #1e293b;
+  color: #ef4444;
+  border: 1px solid #334155;
+  font-size: 0.75rem;
+}
+
+.admin__btn--del:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.admin__table-wrap {
+  overflow-x: auto;
+}
+
+.admin__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.admin__table th {
+  text-align: left;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  white-space: nowrap;
+}
+
+.admin__table td {
+  padding: 0.6rem 1rem;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+  white-space: nowrap;
+}
+
+.admin__table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.admin__table tbody tr:hover {
+  background: rgba(14, 165, 233, 0.06);
+}
+
+.admin__mono {
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.admin__date {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.admin__msg {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin__empty {
+  text-align: center;
+  padding: 2rem 1rem !important;
+  color: #475569;
+  font-style: italic;
+}
+
+/* ── Status Badges ──────────────────────────────────────────────────────── */
+.admin__badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+}
+
+.admin__badge--safe {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.admin__badge--warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.admin__badge--danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* ── IoT Live Indicator ─────────────────────────────────────────────────── */
+.admin__live-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: inline-block;
+  animation: adminPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes adminPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+  50%      { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+
+.admin__live-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #22c55e;
+}
+
+/* ── IoT Info Box ───────────────────────────────────────────────────────── */
+.admin__iot-info {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #1e293b;
+  background: rgba(14, 165, 233, 0.04);
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.admin__iot-info p {
+  margin: 0.3rem 0;
+}
+
+.admin__iot-info code {
+  background: #1e293b;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.3rem;
+  font-size: 0.75rem;
+  color: #38bdf8;
+}
+
+.admin__curl-details {
+  margin-top: 0.5rem;
+}
+
+.admin__curl-details summary {
+  cursor: pointer;
+  color: #0ea5e9;
+  font-size: 0.8125rem;
+}
+
+.admin__curl-details pre {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 1rem;
+  background: #1e293b;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.admin__iot-row {
+  animation: iotFlash 0.6s ease;
+}
+
+@keyframes iotFlash {
+  from { background: rgba(14, 165, 233, 0.12); }
+  to   { background: transparent; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .admin__form-row {
+    flex-direction: column;
+  }
+  .admin__form-row input,
+  .admin__form-row select {
+    min-width: 0;
+  }
+  .admin__tabs {
+    gap: 0.35rem;
+  }
+  .admin__tab {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}

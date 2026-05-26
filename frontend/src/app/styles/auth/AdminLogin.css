@@ -1,0 +1,284 @@
+.admin-login {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100vh;
+  background-color: #d9d9d9;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-login::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/waters/taguanao-creek.jpg");
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px);
+  transform: scale(1.05);
+}
+
+.admin-login::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(236, 236, 236, 0.62);
+}
+
+.admin-login__header {
+  position: relative;
+  z-index: 1;
+  height: 108px;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  background-color: #3948d6;
+}
+
+.admin-login__title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.22);
+}
+
+.admin-login__content {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 108px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-login__card {
+  width: min(100%, 420px);
+  padding: 34px 34px 18px;
+  border: 3px solid #7688ac;
+  border-radius: 30px;
+  background-color: #b7c3d8;
+  display: grid;
+  gap: 14px;
+  color: #ffffff;
+}
+
+.admin-login__card-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.admin-login__form {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-login__label {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.admin-login__input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #b8b8b8;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  color: #868686;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.admin-login__input::placeholder {
+  color: #aaaaaa;
+}
+
+.admin-login__password-wrap {
+  position: relative;
+}
+
+.admin-login__input--password {
+  padding-right: 52px;
+}
+
+.admin-login__password-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #c8c8c8;
+}
+
+.admin-login__forgot {
+  justify-self: start;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-login__submit {
+  margin-top: 4px;
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background-color: #003b75;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.admin-login__divider {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #f6f6f6;
+}
+
+.admin-login__socials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.admin-login__social {
+  height: 44px;
+  border: 1px solid #a3a3a3;
+  border-radius: 12px;
+  background-color: #efefef;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.admin-login__social--google {
+  color: #4285f4;
+}
+
+.admin-login__social--github {
+  color: #111111;
+}
+
+.admin-login__social--facebook {
+  color: #1877f2;
+}
+
+.admin-login__register {
+  margin: 0;
+  text-align: center;
+  color: #f7f7f7;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-login__register span {
+  font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+  .admin-login__title {
+    font-size: 36px;
+  }
+
+  .admin-login__card {
+    padding: 40px 32px;
+    border-radius: 28px;
+  }
+
+  .admin-login__card-title {
+    font-size: 38px;
+  }
+
+  .admin-login__label {
+    font-size: 24px;
+  }
+
+  .admin-login__input {
+    height: 52px;
+    font-size: 22px;
+  }
+
+  .admin-login__forgot {
+    font-size: 23px;
+  }
+
+  .admin-login__submit {
+    height: 58px;
+    font-size: 32px;
+  }
+
+  .admin-login__divider {
+    font-size: 22px;
+  }
+
+  .admin-login__register {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-login__header {
+    height: 88px;
+    padding: 0 18px;
+  }
+
+  .admin-login__title {
+    font-size: 28px;
+  }
+
+  .admin-login__content {
+    padding: 16px;
+  }
+
+  .admin-login__card {
+    padding: 26px 18px;
+    border-radius: 22px;
+    gap: 18px;
+  }
+
+  .admin-login__card-title {
+    font-size: 30px;
+  }
+
+  .admin-login__label {
+    font-size: 19px;
+  }
+
+  .admin-login__input {
+    height: 46px;
+    font-size: 18px;
+  }
+
+  .admin-login__forgot {
+    font-size: 18px;
+  }
+
+  .admin-login__submit {
+    height: 52px;
+    font-size: 26px;
+  }
+
+  .admin-login__divider {
+    font-size: 18px;
+  }
+
+  .admin-login__social {
+    height: 50px;
+  }
+
+  .admin-login__register {
+    font-size: 14px;
+  }
+}

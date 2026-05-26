@@ -1,0 +1,305 @@
+.app__section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.app__page-text {
+  margin: 0;
+  color: #4b5563;
+}
+
+.app__water-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app__water-grid--monitoring {
+  margin-top: 0.75rem;
+}
+
+.app__monitor-card-button {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.app__monitor-card-button:hover {
+  transform: translateY(-2px);
+  border-color: #93c5fd;
+  box-shadow: 0 6px 14px rgba(29, 78, 216, 0.12);
+}
+
+.app__monitor-card-button:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.app__monitor-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  padding: 0 1.5rem 0.5rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.app__monitor-card-hint {
+  margin: 0;
+  padding: 0 1.5rem 1.25rem;
+  color: #0f766e;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.app__monitor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.app__monitor-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(6px);
+}
+
+.app__monitor-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(1240px, 100%);
+  height: 100%;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at top left, rgba(125, 211, 252, 0.28), transparent 28%),
+    linear-gradient(180deg, #f8fdff 0%, #eef7fb 100%);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.24);
+}
+
+.app__monitor-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem;
+  background: rgba(248, 253, 255, 0.92);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  backdrop-filter: blur(16px);
+}
+
+.app__monitor-modal-eyebrow {
+  margin: 0 0 0.35rem;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app__monitor-modal-title {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  line-height: 1.05;
+  color: #0f172a;
+}
+
+.app__monitor-modal-close {
+  border: 0;
+  border-radius: 9999px;
+  padding: 0.8rem 1.1rem;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.app__monitor-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1.25fr);
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.app__monitor-modal-hero,
+.app__monitor-chart-card {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.app__monitor-modal-hero {
+  padding: 1rem;
+}
+
+.app__monitor-modal-photo-wrap {
+  margin: 0 0 1rem;
+  height: 250px;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.app__monitor-modal-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app__monitor-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.app__monitor-stat-card {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 100%);
+}
+
+.app__monitor-stat-card strong {
+  font-size: 1.4rem;
+  color: #0f172a;
+}
+
+.app__monitor-stat-label {
+  color: #475569;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.app__monitor-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.app__monitor-info-grid p,
+.app__monitor-chart-footer p {
+  margin: 0;
+  color: #334155;
+}
+
+.app__monitor-notes {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.app__monitor-chart-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem 1.1rem 1rem;
+}
+
+.app__monitor-chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app__monitor-chart-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.app__monitor-chart-caption {
+  max-width: 17rem;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  text-align: right;
+}
+
+.app__monitor-chart-wrap {
+  height: 420px;
+  padding: 0.5rem 0 0;
+}
+
+.app__monitor-chart-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+@media (min-width: 768px) {
+  .app__water-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .app__monitor-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .app__monitor-modal {
+    padding: 0;
+  }
+
+  .app__monitor-modal-panel {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .app__monitor-modal-header {
+    padding: 1rem 1rem 0.9rem;
+  }
+
+  .app__monitor-modal-grid {
+    padding: 1rem;
+  }
+
+  .app__monitor-stat-grid,
+  .app__monitor-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app__monitor-chart-header,
+  .app__monitor-chart-footer {
+    display: grid;
+  }
+
+  .app__monitor-chart-caption {
+    max-width: none;
+    text-align: left;
+  }
+
+  .app__monitor-chart-wrap {
+    height: 300px;
+  }
+}

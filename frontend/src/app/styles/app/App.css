@@ -1,0 +1,80 @@
+.app,
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f4f7fc 0%, #eef3fb 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.app__header {
+  padding: 1.25rem 1.5rem 1.25rem 5.5rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.app__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.app__subtitle {
+  margin: 0.25rem 0 0;
+  color: #dbeafe;
+}
+
+.app__workspace {
+  flex: 1;
+  width: min(100%, 88rem);
+  margin: 0 auto;
+  padding: 1.25rem 1rem 1.5rem;
+  display: block;
+}
+
+.app__main {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid #d7e2f4;
+  border-radius: 0.9rem;
+  background-color: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.app__footer {
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid #d8e3f4;
+  font-size: 0.875rem;
+  color: #475569;
+  background-color: #f8fbff;
+}
+
+.app__footer p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .app__header {
+    padding: 1rem 0.85rem 1rem 4.6rem;
+  }
+
+  .app__title {
+    font-size: 1.25rem;
+  }
+
+  .app__workspace {
+    padding: 0.75rem;
+  }
+
+  .app__main {
+    padding: 0.9rem;
+  }
+}

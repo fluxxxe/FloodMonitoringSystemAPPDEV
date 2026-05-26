@@ -1,0 +1,20 @@
+[
+  {
+    "id": "r1",
+    "reporterName": "Juan Dela Cruz",
+    "email": "juan.delacruz@example.com",
+    "contactNumber": "09171234567",
+    "locationId": "cdr-river",
+    "waterLevel": 8.3,
+    "incidentType": "Flood",
+    "urgency": "High",
+    "needsRescue": true,
+    "notifySms": true,
+    "notifyEmail": false,
+    "reportDate": "2026-03-30",
+    "reportTime": "09:25",
+    "notes": "Water entered the roadside area and is still rising.",
+    "status": "submitted",
+    "createdAt": "2026-03-30T09:25:00+08:00"
+  }
+]

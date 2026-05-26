@@ -1,0 +1,7 @@
+{
+  "python.analysis.extraPaths": [
+    "./fastapi_backend",
+    "./backend"
+  ],
+  "python.defaultInterpreterPath": "fastapi_backend/.venv/Scripts/python.exe"
+}

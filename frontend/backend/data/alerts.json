@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1",
+    "title": "High Water Level",
+    "message": "Central Dam water level is approaching maximum capacity.",
+    "type": "danger",
+    "source": "sensor",
+    "createdAt": "2026-03-30T08:55:00+08:00"
+  },
+  {
+    "id": "a2",
+    "title": "Heavy Rainfall Expected",
+    "message": "Weather forecast shows heavy rain in the next 6 hours.",
+    "type": "warning",
+    "source": "weather",
+    "createdAt": "2026-03-30T08:20:00+08:00"
+  },
+  {
+    "id": "a3",
+    "title": "Tsunami Alert",
+    "message": "Tsunami warning issued for coastal areas.",
+    "type": "danger",
+    "source": "advisory",
+    "createdAt": "2026-03-30T07:45:00+08:00"
+  }
+]

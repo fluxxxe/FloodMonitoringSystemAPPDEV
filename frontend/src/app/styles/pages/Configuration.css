@@ -1,0 +1,26 @@
+.app__section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.app__page-text {
+  margin: 0;
+  color: #4b5563;
+}
+
+.app__page-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.app__page-link {
+  display: inline-block;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.4rem;
+  text-decoration: none;
+  color: #1f2937;
+  background-color: #ffffff;
+}

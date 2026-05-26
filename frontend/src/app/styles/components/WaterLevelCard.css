@@ -1,0 +1,74 @@
+.water-level-card__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.water-level-card__badge {
+  border: 0;
+}
+
+.water-level-card__badge--safe {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+.water-level-card__badge--warning {
+  background-color: #eab308;
+  color: #000000;
+}
+
+.water-level-card__badge--danger {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.water-level-card__body {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.water-level-card__level {
+  margin: 0;
+  font-size: 1.875rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.water-level-card__max-level {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.water-level-card__progress-track {
+  width: 100%;
+  height: 1rem;
+  margin-top: 1rem;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  overflow: hidden;
+}
+
+.water-level-card__progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.water-level-card__progress-fill--safe {
+  background-color: #22c55e;
+}
+
+.water-level-card__progress-fill--warning {
+  background-color: #eab308;
+}
+
+.water-level-card__progress-fill--danger {
+  background-color: #ef4444;
+}
+
+.water-level-card__percent {
+  margin: 0;
+  font-size: 0.75rem;
+  text-align: right;
+  color: #6b7280;
+}

@@ -1,0 +1,61 @@
+.alert-card {
+  border-left-width: 4px;
+}
+
+.alert-card--info {
+  border-left-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.alert-card--warning {
+  border-left-color: #eab308;
+  background-color: #fefce8;
+}
+
+.alert-card--danger {
+  border-left-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.alert-card__content {
+  padding-top: 1.5rem;
+}
+
+.alert-card__row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.alert-card__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.alert-card__icon--info {
+  color: #3b82f6;
+}
+
+.alert-card__icon--warning {
+  color: #eab308;
+}
+
+.alert-card__icon--danger {
+  color: #ef4444;
+}
+
+.alert-card__body {
+  flex: 1;
+}
+
+.alert-card__title {
+  margin: 0 0 0.25rem;
+  font-weight: 500;
+}
+
+.alert-card__message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
