@@ -33,6 +33,11 @@ class IncidentReport(Base):
     incident_type = Column(String, nullable=False)
     rescue_needs = Column(String, default="")
     location = Column(String, nullable=False)
+    email = Column(String, default="")
+    contact_number = Column(String, default="")
+    urgency = Column(String, default="Medium")
+    observed_level = Column(Float, nullable=True)
+    notes = Column(String, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

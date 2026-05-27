@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { useWeather } from "../hooks/useWeather";
+import { useAlerts } from "../hooks/useAlerts";
+import { useWaters } from "../hooks/useWaters";
 import { deriveWeatherAlerts } from "../utils/weatherAlerts";
 import "../styles/pages/Notifications.css";
 
@@ -16,49 +18,6 @@ type NotificationItem = {
   occurredAt: string;
   isRead: boolean;
 };
-
-const initialNotifications: NotificationItem[] = [
-  {
-    id: "n1",
-    title: "Tsunami Sensor Spike",
-    message: "Offshore buoy detected unusual pressure change near the eastern coastal zone.",
-    type: "Tsunami",
-    source: "IoT Buoy",
-    station: "Buoy TSU-01",
-    occurredAt: "2026-03-31T08:31:00+08:00",
-    isRead: false,
-  },
-  {
-    id: "n2",
-    title: "River Level Warning",
-    message: "Cagayan De Oro River crossed the warning threshold after sustained upstream inflow.",
-    type: "Flood",
-    source: "River Sensor",
-    station: "TSU-001",
-    occurredAt: "2026-03-31T08:12:00+08:00",
-    isRead: false,
-  },
-  {
-    id: "n3",
-    title: "Canal Level Normalized",
-    message: "Kauswagan Canal readings returned to the safe operating band.",
-    type: "Flood",
-    source: "River Sensor",
-    station: "FLD-004",
-    occurredAt: "2026-03-30T18:46:00+08:00",
-    isRead: true,
-  },
-  {
-    id: "n4",
-    title: "Rainfall Advisory Logged",
-    message: "Weather telemetry reported elevated rain probability for the next monitoring window.",
-    type: "Rainfall",
-    source: "Weather Feed",
-    station: "WX-CDO",
-    occurredAt: "2026-03-30T14:20:00+08:00",
-    isRead: true,
-  },
-];
 
 function formatNotificationDate(value: string): string {
   return new Intl.DateTimeFormat("en-PH", {
@@ -89,10 +48,39 @@ function formatRelativeTime(value: string): string {
 
 export function Notifications() {
   const { status, payload, locationName } = useWeather();
-  const [items, setItems] = useState<NotificationItem[]>(initialNotifications);
+  const { alerts: backendAlerts } = useAlerts();
+  const { waters } = useWaters();
   const [readOverrides, setReadOverrides] = useState<Record<string, boolean>>({});
   const [filterType, setFilterType] = useState<"All" | NotificationType>("All");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+
+  const backendItems = useMemo<NotificationItem[]>(() => {
+    return backendAlerts.map((alert) => ({
+      id: `alert-${alert.id}`,
+      title: alert.title,
+      message: alert.message,
+      type: (alert.type === "danger" ? "Flood" : alert.type === "warning" ? "Flood" : "Rainfall") as NotificationType,
+      source: "River Sensor" as NotificationSource,
+      station: "System",
+      occurredAt: alert.createdAt ?? new Date().toISOString(),
+      isRead: false,
+    }));
+  }, [backendAlerts]);
+
+  const waterStatusItems = useMemo<NotificationItem[]>(() => {
+    return waters
+      .filter((w) => w.status === "Warning" || w.status === "Danger")
+      .map((w) => ({
+        id: `water-${w.id}`,
+        title: `${w.status} at ${w.locationName}`,
+        message: `Current level ${w.currentLevel.toFixed(1)}m (${w.trend} trend). Max capacity ${w.maxLevel.toFixed(1)}m.`,
+        type: "Flood" as NotificationType,
+        source: "River Sensor" as NotificationSource,
+        station: w.sensorId,
+        occurredAt: new Date().toISOString(),
+        isRead: false,
+      }));
+  }, [waters]);
 
   const liveWeatherItems = useMemo<NotificationItem[]>(() => {
     if (!payload) return [];
@@ -110,7 +98,14 @@ export function Notifications() {
   }, [locationName, payload]);
 
   const mergedItems = useMemo(() => {
-    return [...liveWeatherItems, ...items]
+    const seen = new Set<string>();
+    const unique = [...backendItems, ...waterStatusItems, ...liveWeatherItems].filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+
+    return unique
       .map((item) => ({
         ...item,
         isRead: readOverrides[item.id] ?? item.isRead,
@@ -119,7 +114,7 @@ export function Notifications() {
         (left, right) =>
           new Date(right.occurredAt).getTime() - new Date(left.occurredAt).getTime(),
       );
-  }, [items, liveWeatherItems, readOverrides]);
+  }, [backendItems, waterStatusItems, liveWeatherItems, readOverrides]);
 
   const filteredItems = useMemo(() => {
     return mergedItems.filter((item) => {
@@ -165,11 +160,17 @@ export function Notifications() {
   };
 
   const clearRead = () => {
-    setItems((current) => current.filter((item) => !(readOverrides[item.id] ?? item.isRead)));
+    const updates: Record<string, boolean> = {};
+    mergedItems.forEach((item) => {
+      if (readOverrides[item.id] ?? item.isRead) {
+        updates[item.id] = true;
+      }
+    });
+    setReadOverrides((previous) => ({ ...previous, ...updates }));
   };
 
   const clearAll = () => {
-    setItems([]);
+    markAllAsRead();
   };
 
   return (
@@ -193,9 +194,15 @@ export function Notifications() {
 
       <div className="app__notif-controls">
         <div className="app__notif-live-status">
-          <span>Live weather feed:</span>
+          <span>Live feeds:</span>
           <span className={`app__notif-status-badge app__notif-status-badge--${status}`}>
-            {status === "loading" ? "Updating..." : "Synced"}
+            Weather {status === "loading" ? "…" : "✓"}
+          </span>
+          <span className="app__notif-status-badge app__notif-status-badge--ready">
+            API alerts ({backendAlerts.length})
+          </span>
+          <span className="app__notif-status-badge app__notif-status-badge--ready">
+            Stations ({waters.length})
           </span>
         </div>
 

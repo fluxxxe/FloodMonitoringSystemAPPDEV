@@ -56,6 +56,11 @@ export function IncidentReport() {
           incident_type: incidentType,
           rescue_needs: rescueStr || "None",
           location: selectedLocation?.locationName || "Unknown Location",
+          email,
+          contact_number: contactNumber,
+          urgency,
+          observed_level: waterLevel ? Number(waterLevel) : null,
+          notes,
         }),
       });
 

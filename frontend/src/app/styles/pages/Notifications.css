@@ -195,6 +195,11 @@
   color: #b91c1c;
 }
 
+.app__notif-status-badge--ready {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
 .app__notif-status-badge--idle {
   background: #f1f5f9;
   color: #475569;

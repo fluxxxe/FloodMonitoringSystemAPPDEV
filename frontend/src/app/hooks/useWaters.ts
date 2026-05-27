@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../apiConfig';
-import { MonitoredWater } from '../data/monitoredWaters';
+import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../apiConfig";
+import { MonitoredWater } from "../data/monitoredWaters";
+import { normalizeWatersList } from "../utils/normalizeWater";
 
 export function useWaters() {
   const [waters, setWaters] = useState<MonitoredWater[]>([]);
@@ -11,11 +12,12 @@ export function useWaters() {
     async function fetchWaters() {
       try {
         const response = await fetch(`${API_BASE_URL}/water-levels/`);
-        if (!response.ok) throw new Error('Failed to fetch water levels');
+        if (!response.ok) throw new Error("Failed to fetch water levels");
         const data = await response.json();
-        setWaters(data);
-      } catch (err: any) {
-        setError(err.message);
+        setWaters(normalizeWatersList(data));
+        setError(null);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to fetch water levels");
       } finally {
         setLoading(false);
       }

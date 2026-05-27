@@ -32,6 +32,11 @@ class IncidentReportCreate(BaseModel):
     incident_type: str
     rescue_needs: str = ""
     location: str
+    email: str = ""
+    contact_number: str = ""
+    urgency: str = "Medium"
+    observed_level: Optional[float] = None
+    notes: str = ""
 
 
 # ── Product ────────────────────────────────────────────────────────────────────

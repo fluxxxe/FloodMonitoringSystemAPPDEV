@@ -1,12 +1,25 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../apiConfig";
+import { exportToCsv } from "../utils/exportCsv";
 import "../styles/pages/Admin.css";
 
 type TabKey = "waters" | "alerts" | "reports" | "iot";
 
 interface WaterRow { id: number; locationName: string; currentLevel: string; maxLevel: string; status: string; trend: string; lastUpdated: string; }
 interface AlertRow { id: number; title: string; message: string; type: string; createdAt: string; }
-interface ReportRow { id: number; reporterName: string; incidentType: string; rescueNeeds: string; location: string; createdAt: string; }
+interface ReportRow {
+  id: number;
+  reporterName: string;
+  incidentType: string;
+  rescueNeeds: string;
+  location: string;
+  email?: string;
+  contactNumber?: string;
+  urgency?: string;
+  observedLevel?: number | null;
+  notes?: string;
+  createdAt: string;
+}
 interface IoTRow { id: number; locationName: string; currentLevel: string; status: string; trend: string; timestamp: string; }
 
 export function Admin() {
@@ -78,6 +91,14 @@ export function Admin() {
     return d.toLocaleString();
   };
 
+  const exportCurrentTab = () => {
+    const stamp = new Date().toISOString().slice(0, 10);
+    if (tab === "waters") exportToCsv(`waters-${stamp}.csv`, waters as unknown as Record<string, unknown>[]);
+    if (tab === "alerts") exportToCsv(`alerts-${stamp}.csv`, alerts as unknown as Record<string, unknown>[]);
+    if (tab === "reports") exportToCsv(`reports-${stamp}.csv`, reports as unknown as Record<string, unknown>[]);
+    if (tab === "iot") exportToCsv(`iot-readings-${stamp}.csv`, iotReadings as unknown as Record<string, unknown>[]);
+  };
+
   const tabs: { key: TabKey; label: string; icon: string }[] = [
     { key: "waters", label: "Monitored Waters", icon: "🌊" },
     { key: "alerts", label: "System Alerts", icon: "⚠️" },
@@ -107,6 +128,14 @@ export function Admin() {
       </nav>
 
       {loading && <div className="admin__loading">Loading data…</div>}
+
+      {!loading && (
+        <div className="admin__export-row">
+          <button type="button" className="admin__btn admin__btn--export" onClick={exportCurrentTab}>
+            Export {tab} to CSV
+          </button>
+        </div>
+      )}
 
       {/* ── WATERS ───────────────────────────────────────────────────── */}
       {tab === "waters" && (
@@ -203,18 +232,20 @@ export function Admin() {
           <div className="admin__table-wrap">
             <table className="admin__table">
               <thead>
-                <tr><th>ID</th><th>Reporter</th><th>Type</th><th>Rescue Needs</th><th>Location</th><th>Created</th><th></th></tr>
+                <tr><th>ID</th><th>Reporter</th><th>Email</th><th>Urgency</th><th>Level</th><th>Type</th><th>Location</th><th>Created</th><th></th></tr>
               </thead>
               <tbody>
                 {reports.length === 0 && (
-                  <tr><td colSpan={7} className="admin__empty">No incident reports yet</td></tr>
+                  <tr><td colSpan={9} className="admin__empty">No incident reports yet</td></tr>
                 )}
                 {reports.map(r => (
                   <tr key={r.id}>
                     <td>{r.id}</td>
                     <td>{r.reporterName}</td>
+                    <td>{r.email || "—"}</td>
+                    <td>{r.urgency || "—"}</td>
+                    <td className="admin__mono">{r.observedLevel != null ? `${r.observedLevel}m` : "—"}</td>
                     <td>{r.incidentType}</td>
-                    <td className="admin__msg">{r.rescueNeeds}</td>
                     <td>{r.location}</td>
                     <td className="admin__date">{formatDate(r.createdAt)}</td>
                     <td><button className="admin__btn admin__btn--del" onClick={() => deleteItem("reports", r.id, fetchReports)}>✕</button></td>

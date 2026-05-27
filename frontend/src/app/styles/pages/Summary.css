@@ -1,26 +1,62 @@
-.app__section-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.125rem;
+.summary__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
 }
 
-.app__page-text {
+.summary__card {
+  padding: 0.85rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.summary__card--safe { border-color: #bbf7d0; background: #f0fdf4; }
+.summary__card--warn { border-color: #fde68a; background: #fffbeb; }
+.summary__card--danger { border-color: #fecaca; background: #fef2f2; }
+
+.summary__label {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.summary__value {
+  font-size: 1.5rem;
+}
+
+.summary__iot-panel {
+  margin: 1rem 0;
+  padding: 0.85rem;
+  border-radius: 0.5rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.summary__stations h3 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.summary__station-list {
+  list-style: none;
   margin: 0;
-  color: #4b5563;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
 }
 
-.app__page-actions {
-  margin-top: 0.5rem;
-  display: flex;
+.summary__station {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.4rem;
+  font-size: 0.875rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
-.app__page-link {
-  display: inline-block;
-  padding: 0.45rem 0.7rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.4rem;
-  text-decoration: none;
-  color: #1f2937;
-  background-color: #ffffff;
-}
+.summary__station--danger { border-color: #fecaca; background: #fef2f2; }
+.summary__station--warning { border-color: #fde68a; background: #fffbeb; }

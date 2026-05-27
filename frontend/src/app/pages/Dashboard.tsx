@@ -5,14 +5,32 @@ import { AlertCard } from "../components/AlertCard";
 import { StatsCard } from "../components/StatsCard";
 import { WeatherPanel } from "../components/WeatherPanel";
 import { Button } from "../components/ui/button";
+import { useIoTLatest } from "../hooks/useIoTLatest";
 import { ActiveAlert } from "../data/activeAlerts";
 import { useWaters } from "../hooks/useWaters";
 import { useAlerts } from "../hooks/useAlerts";
+import { useHealth } from "../hooks/useHealth";
+import { SystemStatusBanner } from "../components/SystemStatusBanner";
+import { MonitoredWater } from "../data/monitoredWaters";
 import "../styles/pages/Dashboard.css";
 
+function isCagayanDeOroRiver(name: string): boolean {
+  const n = name.toLowerCase();
+  return n.includes("cagayan") && n.includes("oro") && n.includes("river");
+}
+
+function normalizeStatus(status: string): MonitoredWater["status"] {
+  const s = status.toLowerCase();
+  if (s === "warning") return "Warning";
+  if (s === "danger") return "Danger";
+  return "Safe";
+}
+
 export function Dashboard() {
-  const { waters, loading: watersLoading } = useWaters();
-  const { alerts: backendAlerts, loading: alertsLoading } = useAlerts();
+  const { waters } = useWaters();
+  const { alerts: backendAlerts } = useAlerts();
+  const { health, error: healthError } = useHealth();
+  const { reading, loading: iotLoading, lastRefreshed } = useIoTLatest();
   const [showAlerts, setShowAlerts] = useState(true);
   const [weatherAlerts, setWeatherAlerts] = useState<ActiveAlert[]>([]);
   const alertsSectionRef = useRef<HTMLElement | null>(null);
@@ -34,8 +52,37 @@ export function Dashboard() {
 
   const alerts = [...backendAlerts, ...weatherAlerts];
 
+  function buildCardProps(loc: MonitoredWater) {
+    if (!isCagayanDeOroRiver(loc.locationName)) {
+      return { loc, arduinoMonitor: undefined };
+    }
+
+    const iotLevel = reading ? parseFloat(reading.currentLevel) : NaN;
+    const merged: MonitoredWater = reading
+      ? {
+          ...loc,
+          currentLevel: Number.isNaN(iotLevel) ? loc.currentLevel : iotLevel,
+          status: normalizeStatus(reading.status),
+          trend: (reading.trend as MonitoredWater["trend"]) || loc.trend,
+        }
+      : loc;
+
+    return {
+      loc: merged,
+      arduinoMonitor: {
+        trend: reading?.trend,
+        sensorTimestamp: reading?.timestamp ?? null,
+        lastPolled: lastRefreshed,
+        loading: iotLoading && !reading,
+        hasReading: Boolean(reading),
+      },
+    };
+  }
+
   return (
     <>
+      <SystemStatusBanner health={health} apiError={healthError} />
+
       <section className="app__section">
         <h2 className="app__section-title">Overview Statistics</h2>
         <ul className="app__stats-grid">
@@ -55,11 +102,14 @@ export function Dashboard() {
           </Link>
         </div>
         <ul className="app__water-grid">
-          {featuredWaters.map((loc) => (
-            <li key={loc.id}>
-              <WaterLevelCard {...loc} />
-            </li>
-          ))}
+          {featuredWaters.map((loc) => {
+            const { loc: cardLoc, arduinoMonitor } = buildCardProps(loc);
+            return (
+              <li key={loc.id}>
+                <WaterLevelCard {...cardLoc} arduinoMonitor={arduinoMonitor} />
+              </li>
+            );
+          })}
         </ul>
       </section>
 

@@ -155,6 +155,21 @@
   transition: all 0.2s ease;
 }
 
+.admin__export-row {
+  margin-bottom: 0.75rem;
+}
+
+.admin__btn--export {
+  padding: 0.45rem 0.9rem;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.admin__btn--export:hover {
+  background: #e2e8f0;
+}
+
 .admin__btn--add {
   padding: 0.5rem 1rem;
   background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);

@@ -5,11 +5,12 @@ Provides REST endpoints consumed by the React frontend and an
 IoT ingest endpoint that hardware sensors can POST to.
 """
 
-from datetime import datetime
-from typing import List
+from datetime import datetime, timedelta
+from typing import List, Optional
 
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
@@ -32,11 +33,18 @@ app.add_middleware(
 # Simple API key for the IoT device – change this for production!
 IOT_API_KEY = "flood-iot-secret-2026"
 
+# Thresholds as % of max_level (used when ingesting IoT readings)
+THRESHOLD_WARNING_PCT = 0.70
+THRESHOLD_DANGER_PCT = 0.90
+ALERT_DEDUP_MINUTES = 15
+IOT_STALE_MINUTES = 5
+
 
 # ── Startup: seed data ────────────────────────────────────────────────────────
 @app.on_event("startup")
 def seed_data():
     db = next(get_db())
+    _migrate_incident_columns(db)
     if db.query(models.WaterLevel).count() == 0:
         seeds = [
             models.WaterLevel(
@@ -84,6 +92,48 @@ def seed_data():
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
+def _migrate_incident_columns(db: Session) -> None:
+    """Add new incident_reports columns on existing SQLite DBs."""
+    columns = [
+        ("email", "VARCHAR"),
+        ("contact_number", "VARCHAR"),
+        ("urgency", "VARCHAR DEFAULT 'Medium'"),
+        ("observed_level", "FLOAT"),
+        ("notes", "VARCHAR"),
+    ]
+    for name, col_type in columns:
+        try:
+            db.execute(text(f"ALTER TABLE incident_reports ADD COLUMN {name} {col_type}"))
+            db.commit()
+        except Exception:
+            db.rollback()
+
+
+def compute_status_from_level(current_level: float, max_level: float) -> str:
+    if max_level <= 0:
+        return "Normal"
+    ratio = current_level / max_level
+    if ratio >= THRESHOLD_DANGER_PCT:
+        return "Danger"
+    if ratio >= THRESHOLD_WARNING_PCT:
+        return "Warning"
+    return "Normal"
+
+
+def _should_create_danger_alert(db: Session, location_name: str) -> bool:
+    cutoff = datetime.utcnow() - timedelta(minutes=ALERT_DEDUP_MINUTES)
+    recent = (
+        db.query(models.Alert)
+        .filter(
+            models.Alert.type == "danger",
+            models.Alert.title.contains(location_name),
+            models.Alert.created_at >= cutoff,
+        )
+        .first()
+    )
+    return recent is None
+
+
 def _to_camel_water(w: models.WaterLevel) -> dict:
     return {
         "id": w.id,
@@ -113,6 +163,11 @@ def _to_camel_report(r: models.IncidentReport) -> dict:
         "incidentType": r.incident_type,
         "rescueNeeds": r.rescue_needs,
         "location": r.location,
+        "email": r.email or "",
+        "contactNumber": r.contact_number or "",
+        "urgency": r.urgency or "Medium",
+        "observedLevel": r.observed_level,
+        "notes": r.notes or "",
         "createdAt": r.created_at.isoformat() if r.created_at else None,
     }
 
@@ -135,6 +190,37 @@ def _to_camel_iot(r: models.IoTReading) -> dict:
         "status": r.status,
         "trend": r.trend,
         "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  HEALTH
+# ══════════════════════════════════════════════════════════════════════════════
+@app.get("/api/health/")
+def health_check(db: Session = Depends(get_db)):
+    latest_iot = (
+        db.query(models.IoTReading)
+        .order_by(models.IoTReading.timestamp.desc())
+        .first()
+    )
+    latest_at = latest_iot.timestamp if latest_iot else None
+    iot_stale = False
+    if latest_at:
+        iot_stale = (datetime.utcnow() - latest_at) > timedelta(minutes=IOT_STALE_MINUTES)
+
+    return {
+        "status": "ok",
+        "db": True,
+        "stationCount": db.query(models.WaterLevel).count(),
+        "alertCount": db.query(models.Alert).count(),
+        "iotReadingCount": db.query(models.IoTReading).count(),
+        "latestIotAt": latest_at.isoformat() if latest_at else None,
+        "latestIotLocation": latest_iot.location_name if latest_iot else None,
+        "iotStale": iot_stale,
+        "thresholds": {
+            "warningPct": THRESHOLD_WARNING_PCT,
+            "dangerPct": THRESHOLD_DANGER_PCT,
+        },
     }
 
 
@@ -186,7 +272,7 @@ def list_alerts(db: Session = Depends(get_db)):
 
 
 @app.post("/api/alerts/", status_code=201)
-def create_alert(payload: schemas.AlertCreate, db: Depends(get_db)):
+def create_alert(payload: schemas.AlertCreate, db: Session = Depends(get_db)):
     a = models.Alert(**payload.model_dump())
     db.add(a)
     db.commit()
@@ -212,7 +298,7 @@ def list_reports(db: Session = Depends(get_db)):
 
 
 @app.post("/api/reports/", status_code=201)
-def create_report(payload: schemas.IncidentReportCreate, db: Depends(get_db)):
+def create_report(payload: schemas.IncidentReportCreate, db: Session = Depends(get_db)):
     r = models.IncidentReport(**payload.model_dump())
     db.add(r)
     db.commit()
@@ -221,7 +307,7 @@ def create_report(payload: schemas.IncidentReportCreate, db: Depends(get_db)):
 
 
 @app.delete("/api/reports/{item_id}/", status_code=204)
-def delete_report(item_id: int, db: Depends(get_db)):
+def delete_report(item_id: int, db: Session = Depends(get_db)):
     r = db.query(models.IncidentReport).get(item_id)
     if not r:
         raise HTTPException(404, "Report not found")
@@ -238,7 +324,7 @@ def list_products(db: Session = Depends(get_db)):
 
 
 @app.post("/api/products/", status_code=201)
-def create_product(payload: schemas.ProductCreate, db: Depends(get_db)):
+def create_product(payload: schemas.ProductCreate, db: Session = Depends(get_db)):
     p = models.Product(**payload.model_dump())
     db.add(p)
     db.commit()
@@ -247,7 +333,7 @@ def create_product(payload: schemas.ProductCreate, db: Depends(get_db)):
 
 
 @app.delete("/api/products/{item_id}/", status_code=204)
-def delete_product(item_id: int, db: Depends(get_db)):
+def delete_product(item_id: int, db: Session = Depends(get_db)):
     p = db.query(models.Product).get(item_id)
     if not p:
         raise HTTPException(404, "Product not found")
@@ -273,41 +359,49 @@ def iot_push_reading(payload: schemas.IoTReadingCreate, db: Session = Depends(ge
     if payload.api_key != IOT_API_KEY:
         raise HTTPException(403, "Invalid API key")
 
-    # 1. Log the raw reading
-    reading = models.IoTReading(
-        location_name=payload.location_name,
-        current_level=payload.current_level,
-        status=payload.status,
-        trend=payload.trend,
-    )
-    db.add(reading)
-
-    # 2. Upsert the live water-level row
+    # Resolve max level and compute status from thresholds
     water = (
         db.query(models.WaterLevel)
         .filter(models.WaterLevel.location_name == payload.location_name)
         .first()
     )
+    max_level = (water.max_level if water else None) or payload.max_level or 10.0
+    computed_status = compute_status_from_level(payload.current_level, max_level)
+
+    # 1. Log the raw reading
+    reading = models.IoTReading(
+        location_name=payload.location_name,
+        current_level=payload.current_level,
+        status=computed_status,
+        trend=payload.trend,
+    )
+    db.add(reading)
+
+    # 2. Upsert the live water-level row
     if water:
         water.current_level = payload.current_level
-        water.status = payload.status
+        water.status = computed_status
         water.trend = payload.trend
         water.last_updated = datetime.utcnow()
     else:
         water = models.WaterLevel(
             location_name=payload.location_name,
             current_level=payload.current_level,
-            max_level=payload.max_level or 10.0,
-            status=payload.status,
+            max_level=max_level,
+            status=computed_status,
             trend=payload.trend,
         )
         db.add(water)
 
-    # 3. Auto-create an alert when status is Danger
-    if payload.status == "Danger":
+    # 3. Auto-create a deduplicated alert when status is Danger
+    if computed_status == "Danger" and _should_create_danger_alert(db, payload.location_name):
+        pct = round((payload.current_level / max_level) * 100, 1) if max_level else 0
         db.add(models.Alert(
             title=f"IoT Danger – {payload.location_name}",
-            message=f"Sensor reading {payload.current_level}m ({payload.trend}). Automated alert.",
+            message=(
+                f"Sensor reading {payload.current_level:.2f}m ({pct}% of max, {payload.trend}). "
+                "Automated alert."
+            ),
             type="danger",
         ))
 
@@ -329,3 +423,46 @@ def list_iot_readings(
         .all()
     )
     return [_to_camel_iot(r) for r in rows]
+
+
+@app.get("/api/iot/latest/")
+def latest_iot_reading(
+    location_name: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    """Return the single most-recent IoT reading (or null)."""
+    query = db.query(models.IoTReading)
+    if location_name:
+        query = query.filter(models.IoTReading.location_name == location_name)
+    row = query.order_by(models.IoTReading.timestamp.desc()).first()
+    if not row:
+        return None
+    return _to_camel_iot(row)
+
+
+@app.get("/api/iot/history/")
+def iot_history(
+    location_name: str = Query(..., min_length=1),
+    hours: int = Query(24, ge=1, le=168),
+    db: Session = Depends(get_db),
+):
+    """Return IoT readings for a location within the last N hours (oldest first)."""
+    cutoff = datetime.utcnow() - timedelta(hours=hours)
+    rows = (
+        db.query(models.IoTReading)
+        .filter(
+            models.IoTReading.location_name == location_name,
+            models.IoTReading.timestamp >= cutoff,
+        )
+        .order_by(models.IoTReading.timestamp.asc())
+        .all()
+    )
+    return [
+        {
+            "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+            "level": float(r.current_level),
+            "status": r.status,
+            "trend": r.trend,
+        }
+        for r in rows
+    ]

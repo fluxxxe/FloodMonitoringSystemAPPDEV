@@ -72,3 +72,109 @@
   text-align: right;
   color: #6b7280;
 }
+
+.water-level-card--arduino {
+  border-color: #bfdbfe;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.08);
+}
+
+.water-level-card__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.water-level-card__arduino-subtitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.water-level-card__header-badges {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.water-level-card__live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.water-level-card__live-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: #22c55e;
+  animation: water-level-live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes water-level-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.water-level-card__arduino-meta {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.water-level-card__arduino-trend {
+  margin: 0;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.water-level-card__arduino-trend-label {
+  color: #64748b;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.water-level-card__trend-arrow {
+  font-weight: 700;
+}
+
+.water-level-card__trend-arrow--rising {
+  color: #dc2626;
+}
+
+.water-level-card__trend-arrow--falling {
+  color: #2563eb;
+}
+
+.water-level-card__trend-arrow--steady {
+  color: #64748b;
+}
+
+.water-level-card__arduino-ts {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.water-level-card__arduino-hint {
+  color: #94a3b8;
+}
+
+.water-level-card__arduino-wait {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}

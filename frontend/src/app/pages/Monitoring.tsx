@@ -12,6 +12,8 @@ import {
 } from "recharts";
 import { WaterLevelCard } from "../components/WaterLevelCard";
 import { useWaters } from "../hooks/useWaters";
+import { useIoTHistory } from "../hooks/useIoTHistory";
+import { WaterReading } from "../data/monitoredWaters";
 import "../styles/pages/Monitoring.css";
 
 export function Monitoring() {
@@ -22,6 +24,17 @@ export function Monitoring() {
     () => waters.find((location) => location.id === modalWaterId || String(location.id) === modalWaterId) ?? null,
     [waters, modalWaterId],
   );
+
+  const { readings: iotHistory, loading: historyLoading } = useIoTHistory(
+    selectedWater?.locationName ?? null,
+  );
+
+  const chartReadings: WaterReading[] = useMemo(() => {
+    if (!selectedWater) return [];
+    return iotHistory.length > 0 ? iotHistory : selectedWater.readings;
+  }, [selectedWater, iotHistory]);
+
+  const usingLiveHistory = iotHistory.length > 0;
 
   useEffect(() => {
     if (!selectedWater) return undefined;
@@ -43,9 +56,9 @@ export function Monitoring() {
   }, [selectedWater]);
 
   const chartData = useMemo(() => {
-    if (!selectedWater) return [];
+    if (!selectedWater || chartReadings.length === 0) return [];
 
-    return selectedWater.readings.map((reading) => ({
+    return chartReadings.map((reading) => ({
       level: reading.level,
       timeLabel: new Intl.DateTimeFormat("en-PH", {
         hour: "numeric",
@@ -58,22 +71,22 @@ export function Monitoring() {
         minute: "2-digit",
       }).format(new Date(reading.timestamp)),
     }));
-  }, [selectedWater]);
+  }, [selectedWater, chartReadings]);
 
   const highestReading = useMemo(() => {
-    if (!selectedWater) return null;
+    if (!selectedWater || chartReadings.length === 0) return null;
 
-    return selectedWater.readings.reduce((highest, reading) =>
+    return chartReadings.reduce((highest, reading) =>
       reading.level > highest.level ? reading : highest,
     );
-  }, [selectedWater]);
+  }, [selectedWater, chartReadings]);
 
   const averageLevel = useMemo(() => {
-    if (!selectedWater) return 0;
+    if (!selectedWater || chartReadings.length === 0) return 0;
 
-    const total = selectedWater.readings.reduce((sum, reading) => sum + reading.level, 0);
-    return total / selectedWater.readings.length;
-  }, [selectedWater]);
+    const total = chartReadings.reduce((sum, reading) => sum + reading.level, 0);
+    return total / chartReadings.length;
+  }, [selectedWater, chartReadings]);
 
   return (
     <section className="app__section">
@@ -227,10 +240,20 @@ export function Monitoring() {
                 <div className="app__monitor-chart-header">
                   <div>
                     <h4>24-hour IoT level history</h4>
+                    <p className="app__page-text" style={{ margin: "0.25rem 0 0" }}>
+                      {historyLoading
+                        ? "Loading sensor history…"
+                        : usingLiveHistory
+                          ? `${iotHistory.length} live readings from Arduino`
+                          : "No live history yet — showing sample data"}
+                    </p>
                   </div>
                 </div>
 
                 <div className="app__monitor-chart-wrap">
+                  {chartData.length === 0 ? (
+                    <p className="app__page-text">No chart data available for this location.</p>
+                  ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData} margin={{ top: 16, right: 10, left: -18, bottom: 0 }}>
                       <defs>
@@ -268,6 +291,7 @@ export function Monitoring() {
                       />
                     </AreaChart>
                   </ResponsiveContainer>
+                  )}
                 </div>
 
                 <div className="app__monitor-chart-footer">

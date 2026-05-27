@@ -1,6 +1,9 @@
+import os
+import sys
 import time
 import json
 import serial
+import serial.tools.list_ports
 import requests
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -15,11 +18,26 @@ import requests
 #
 # ══════════════════════════════════════════════════════════════════════════════
 
-# 1. 🔌 Serial Configuration
-# Change 'COM3' to the COM port your Arduino Mega is connected to (e.g., 'COM4', 'COM5').
-# On Mac/Linux, this will look like '/dev/tty.usbmodemXXXX' or '/dev/ttyACM0'.
-SERIAL_PORT = 'COM7' 
+# 1. Serial configuration
+# Override with env var: set ARDUINO_PORT=COM7
+# On Mac/Linux use /dev/ttyACM0 or /dev/tty.usbmodem*
+SERIAL_PORT = os.environ.get("ARDUINO_PORT", "")
 BAUD_RATE = 9600
+
+
+def find_arduino_port() -> str | None:
+    """Pick USB serial port (Arduino Mega) when ARDUINO_PORT is not set."""
+    preferred = []
+    for port in serial.tools.list_ports.comports():
+        desc = (port.description or "").lower()
+        hwid = (port.hwid or "").lower()
+        if "bluetooth" in desc:
+            continue
+        if any(k in desc for k in ("usb serial", "arduino", "ch340", "cp210", "mega")):
+            preferred.append(port.device)
+        elif "usb" in desc or "2341" in hwid:  # 2341 = Arduino VID
+            preferred.append(port.device)
+    return preferred[0] if preferred else None
 
 # 2. 📡 Server Configuration
 # If the Arduino is connected to a DIFFERENT laptop:
@@ -49,13 +67,20 @@ def map_status(arduino_status):
     return "Normal" # Fallback default
 
 def main():
-    print(f"Connecting to Arduino Mega on {SERIAL_PORT}...")
+    port = SERIAL_PORT or find_arduino_port()
+    if not port:
+        print("[ERROR] No Arduino serial port found.")
+        print("[TIP] Plug in the board, close Arduino IDE Serial Monitor, then run:")
+        print('       set ARDUINO_PORT=COM7  (use your port from Device Manager)')
+        sys.exit(1)
+
+    print(f"Connecting to Arduino Mega on {port} @ {BAUD_RATE} baud...")
     try:
-        ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=2)
+        ser = serial.Serial(port, BAUD_RATE, timeout=2)
         time.sleep(2) # Give the Arduino Mega 2 seconds to reset after connection
         print("[+] Connected successfully! Listening for JSON sensor data...")
     except Exception as e:
-        print(f"[ERROR] Could not open serial port {SERIAL_PORT}. Details: {e}")
+        print(f"[ERROR] Could not open serial port {port}. Details: {e}")
         print("[TIP] Make sure the Arduino IDE Serial Monitor is CLOSED before running this script!")
         return
 
